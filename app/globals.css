@@ -25,6 +25,31 @@
   color-scheme: light;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17150f;
+    --paper-2: #1f1c15;
+    --card: #221f18;
+    --ink: #f3ecdd;
+    --ink-2: #cfc6b4;
+    --muted: #978e7e;
+    --line: #36312a;
+    --accent: #ff7a2f;
+    --accent-ink: #1a0f05;
+    --accent-soft: #3a2414;
+    --green: #4fc89a;
+    --gold: #e6b93a;
+    --gold-soft: #2f2812;
+    --silver: #b4b8c0;
+    --silver-soft: #26272a;
+    --bronze: #d58a52;
+    --bronze-soft: #2e2016;
+    --error: #ff8a80;
+    --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 10px 30px -18px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+  }
+}
+
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
