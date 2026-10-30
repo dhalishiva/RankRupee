@@ -350,3 +350,33 @@ select:focus, input:focus, textarea:focus, .amount-field:focus-within, .stepper-
 body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 body > main { flex: 1 0 auto; }
 .site-footer { margin-top: auto; }
+
+/* header search */
+.header-inner { position: relative; }
+.hsearch { position: relative; display: flex; align-items: center; }
+.hsearch-desktop { flex: 0 1 300px; margin: 0 auto 0 20px; }
+.hsearch-icon { position: absolute; left: 12px; display: flex; color: var(--muted); pointer-events: none; }
+.hsearch input, .hsearch-mobile input {
+  padding: 8px 34px 8px 38px; border-radius: 999px; background: var(--card); font-size: 0.92rem;
+}
+.hsearch input::-webkit-search-cancel-button, .hsearch-mobile input::-webkit-search-cancel-button { display: none; }
+.hsearch-clear { position: absolute; right: 6px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--paper-2); cursor: pointer; line-height: 1; }
+.hsearch-toggle {
+  display: none; position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); cursor: pointer; align-items: center; justify-content: center; margin-left: auto;
+}
+.hsearch-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.hsearch-mobile {
+  position: absolute; inset: 0; padding: 0 16px; display: flex; align-items: center; gap: 8px;
+  background: var(--paper); z-index: 2;
+}
+.hsearch-mobile .hsearch-icon { left: 28px; }
+.hsearch-mobile input { flex: 1; }
+.hsearch-close { background: none; border: 0; color: var(--accent); font-weight: 800; cursor: pointer; padding: 6px 4px; }
+.search-status { scroll-margin-top: 80px; margin: 0 0 12px; font-size: 0.88rem; color: var(--ink-2); font-weight: 600; }
+.toolbar .search-status { margin: 0; }
+@media (max-width: 900px) {
+  .hsearch-desktop { display: none; }
+  .hsearch-toggle { display: inline-flex; }
+  .nav { margin-left: 8px; }
+}

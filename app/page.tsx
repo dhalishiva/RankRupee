@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Board, BoardLayout, CategoryChips, EmptyBoard, useRanked } from "@/components/ui";
 import { Spotlight } from "@/components/Spotlight";
-import { matches, SearchBox } from "@/components/Search";
+import { matches, SearchStatus, useSearchQuery } from "@/components/Search";
 import { usd } from "@/lib/format";
 
 export default function Home() {
   const { data, error, loading } = useRanked();
   const top = data?.[0];
-  const [q, setQ] = useState("");
+  const [q] = useSearchQuery();
   const items = data?.filter((p) => matches(p, q));
   return (
     <>
@@ -36,7 +35,7 @@ export default function Home() {
             <Link href="/" className="on">All-time</Link>
             <Link href="/today">Today</Link>
           </div>
-          <SearchBox value={q} onChange={setQ} count={q ? items?.length : undefined} />
+          <SearchStatus count={items?.length} />
         </div>
       </div>
       <BoardLayout>

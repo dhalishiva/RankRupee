@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Spotlight } from "@/components/Spotlight";
-import { matches, SearchBox } from "@/components/Search";
+import { matches, SearchStatus, useSearchQuery } from "@/components/Search";
 import { BoardLayout, BoardSkeleton, CategoryChips, EmptyBoard, ProductCard } from "@/components/ui";
 import { fetchToday, useData } from "@/lib/api";
 
 export default function Today() {
   const { data, error } = useData("today", fetchToday);
-  const [q, setQ] = useState("");
+  const [q] = useSearchQuery();
   const items = data?.filter((p) => matches(p, q));
   return (
     <>
@@ -26,7 +25,7 @@ export default function Today() {
             <Link href="/">All-time</Link>
             <Link href="/today" className="on">Today</Link>
           </div>
-          <SearchBox value={q} onChange={setQ} count={q ? items?.length : undefined} />
+          <SearchStatus count={items?.length} />
         </div>
       </div>
       <BoardLayout>

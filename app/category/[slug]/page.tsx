@@ -1,16 +1,16 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import Link from "next/link";
 import { Board, BoardLayout, CategoryChips, EmptyBoard, useRanked } from "@/components/ui";
 import { categoryBySlug } from "@/lib/data";
-import { matches, SearchBox } from "@/components/Search";
+import { matches, SearchStatus, useSearchQuery } from "@/components/Search";
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const cat = categoryBySlug(slug);
   const { data, error, loading } = useRanked();
-  const [q, setQ] = useState("");
+  const [q] = useSearchQuery();
   if (!cat)
     return (
       <div className="wrap page">
@@ -30,10 +30,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
       </section>
       <div className="wrap">
         <CategoryChips active={slug} />
-        <div className="toolbar">
-          <span />
-          <SearchBox value={q} onChange={setQ} count={q ? items?.length : undefined} />
-        </div>
+        <SearchStatus count={items?.length} />
       </div>
       <BoardLayout category={slug}>
         <Board

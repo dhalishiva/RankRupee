@@ -6,6 +6,7 @@ import { useState } from "react";
 import { CATEGORIES, categoryBySlug, Listing, MIN_CENTS, SITE } from "@/lib/data";
 import { num, timeAgo, usd } from "@/lib/format";
 import { fetchActivity, fetchRanked, fetchStats, fetchToday, recordClick, useData } from "@/lib/api";
+import { HeaderSearch } from "./Search";
 
 export function Owl({ size = 34 }: { size?: number }) {
   return (
@@ -53,6 +54,7 @@ export function SiteHeader() {
           <Owl />
           <span>Softing</span>
         </Link>
+        <HeaderSearch />
         <nav className="nav">
           {nav.map((n) => (
             <Link key={n.href} href={n.href} className={path === n.href ? "active" : ""}>
