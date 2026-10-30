@@ -297,3 +297,18 @@ export function SiteFooter() {
     </footer>
   );
 }
+
+export function WhatsAppButton() {
+  const text = encodeURIComponent("Hi! I have a question about Softing.");
+  return (
+    <a className="wa-fab" href={`https://wa.me/${SITE.whatsapp}?text=${text}`} target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp" title="Chat with us on WhatsApp">
+      <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden>
+        <path d="M12 3C6.9 3 3 6.6 3 11.2c0 2.3 1 4.4 2.7 5.9L5 21l4.2-1.9c.9.3 1.8.4 2.8.4 5.1 0 9-3.6 9-8.2S17.1 3 12 3z" fill="#fff" />
+        <circle cx="8.5" cy="11.3" r="1.2" fill="#1fae5b" />
+        <circle cx="12" cy="11.3" r="1.2" fill="#1fae5b" />
+        <circle cx="15.5" cy="11.3" r="1.2" fill="#1fae5b" />
+      </svg>
+      <span className="wa-label">Chat with us</span>
+    </a>
+  );
+}

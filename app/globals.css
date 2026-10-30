@@ -311,3 +311,18 @@ select:focus, input:focus, textarea:focus, .amount-field:focus-within, .stepper-
 .contact-grid p { margin: 6px 0; font-size: 0.98rem; }
 .contact-grid a { color: var(--accent); font-weight: 700; }
 .success .link-btn { font-size: 0.9rem; }
+
+/* floating chat button */
+.wa-fab {
+  position: fixed; right: 18px; bottom: 18px; z-index: 40;
+  display: flex; align-items: center; gap: 8px;
+  background: #1fae5b; color: #fff; text-decoration: none; font-weight: 800; font-size: 0.9rem;
+  padding: 12px; border-radius: 999px;
+  box-shadow: 0 10px 28px -8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s ease, padding 0.15s ease;
+}
+.wa-fab:hover { transform: translateY(-2px); }
+.wa-label { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width 0.2s ease; }
+.wa-fab:hover .wa-label, .wa-fab:focus-visible .wa-label { max-width: 120px; padding-right: 4px; }
+@media (max-width: 640px) { .wa-fab { right: 14px; bottom: 14px; } }
+.site-footer { padding-bottom: 90px; }

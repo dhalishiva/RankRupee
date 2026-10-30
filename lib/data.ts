@@ -7,6 +7,8 @@ export const SITE = {
   supportEmail: "support@kriosity.in",
   helloEmail: "hello@kriosity.in",
   x: "dhalishiva",
+  whatsapp: "919456277189",
+  whatsappDisplay: "+91 94562 77189",
   launch: Date.UTC(2026, 9, 30),
 };
 

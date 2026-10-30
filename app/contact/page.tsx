@@ -18,6 +18,11 @@ export default function Contact() {
           <p className="muted small">Partnerships, press and everything else.</p>
         </div>
         <div className="card">
+          <h3>WhatsApp</h3>
+          <p><a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener">{SITE.whatsappDisplay}</a></p>
+          <p className="muted small">Quick questions before or after you pay.</p>
+        </div>
+        <div className="card">
           <h3>Business address</h3>
           <p>Kriosity ({SITE.owner})<br />42-A / BLK-S.K. EWS, Sector 66<br />Noida, Gautam Buddha Nagar<br />Uttar Pradesh 201301, India</p>
         </div>

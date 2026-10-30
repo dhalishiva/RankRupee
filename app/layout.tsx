@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { SiteFooter, SiteHeader } from "@/components/ui";
+import { SiteFooter, SiteHeader, WhatsAppButton } from "@/components/ui";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://softing.online"),
@@ -42,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteHeader />
         <main>{children}</main>
         <SiteFooter />
+        <WhatsAppButton />
       </body>
     </html>
   );
