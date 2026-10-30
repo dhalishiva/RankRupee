@@ -19,10 +19,10 @@ export default function Privacy() {
       </ul>
       <p>We do not collect card numbers, UPI IDs or bank details; Razorpay and PayPal process those under their own privacy policies.</p>
       <h2>What we don&apos;t do</h2>
-      <p>No advertising trackers, no selling or renting your data, no marketing emails unless you ask for them.</p>
+      <p>No advertising trackers, no cross-site tracking, no selling or renting your data, no marketing emails unless you ask for them.</p>
       <h2>Services we use</h2>
       <ul>
-        <li><strong>Vercel</strong> — hosts the website.</li>
+        <li><strong>Vercel</strong> — hosts the website and provides Web Analytics and Speed Insights, which count page views and measure load speed without cookies or personal identifiers.</li>
         <li><strong>Supabase</strong> — stores listings and payment records (EU region).</li>
         <li><strong>Razorpay</strong> (India) and <strong>PayPal</strong> (international) — process payments.</li>
         <li><strong>Google</strong> — favicons of listed websites load from Google&apos;s favicon service, and fonts load from Google Fonts. Your browser contacts Google to fetch them.</li>

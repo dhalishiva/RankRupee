@@ -1,6 +1,6 @@
 export const SITE = {
   name: "Softing",
-  url: "https://softing.online",
+  url: "https://www.softing.online", // canonical host (apex redirects here)
   company: "Kriosity",
   owner: "Shiva Dhali",
   address: "42-A / BLK-S.K. EWS, Sector 66, Noida, Gautam Buddha Nagar, Uttar Pradesh 201301, India",

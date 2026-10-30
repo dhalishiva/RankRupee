@@ -1,7 +1,7 @@
 {
   "name": "softing",
   "version": "1.0.0",
-  "description": "Softing \u2014 the public pay-to-rank product leaderboard. A Kriosity product.",
+  "description": "Softing — the public pay-to-rank product leaderboard. A Kriosity product.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -20,6 +20,8 @@
   "homepage": "https://softing.online",
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "next": "^16.4.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
