@@ -1,0 +1,6 @@
+-- Daily Softing digest to Telegram (shared @KriosityOpsAlertsBot), 9:00 AM IST.
+-- Bot token and chat id live in Vault as ops_telegram_bot_token / ops_telegram_chat_id (not in code).
+-- Functions: public.ops_digest_message(since), public.ops_send_daily_digest() — server-only.
+-- Schedule: cron job 'softing-daily-telegram-digest' at '30 3 * * *' (UTC).
+-- Send one now:  select public.ops_send_daily_digest();
+-- Applied via Supabase migration "daily_telegram_digest"; see the database for the full function bodies.
