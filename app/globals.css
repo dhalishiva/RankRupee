@@ -305,14 +305,16 @@ select:focus, input:focus, textarea:focus, .amount-field:focus-within, .stepper-
 /* #1 spotlight */
 .spotlight { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin: 0 0 16px; }
 @media (max-width: 760px) {
-  .spotlight { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .throne { padding: 12px; min-height: 0; gap: 8px; }
-  .throne-label { font-size: 0.62rem; letter-spacing: 0.08em; }
-  .throne-body, .throne-empty .throne-body { grid-template-columns: 1fr; gap: 2px; }
-  .throne-body .logo, .throne-crown, .throne-text .small, .throne-cat { display: none; }
-  .throne-text strong { font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .throne-amt { font-size: 1.2rem; }
-  .throne-btn { width: 100%; font-size: 0.78rem; padding: 7px 8px; }
+  .spotlight { grid-template-columns: 1fr; gap: 10px; }
+  .throne { padding: 12px 14px; min-height: 0; gap: 8px; }
+  .throne-label { font-size: 0.66rem; letter-spacing: 0.1em; }
+  .throne-body { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; }
+  .throne-empty .throne-body { grid-template-columns: auto 1fr; }
+  .throne-body .logo { width: 38px !important; height: 38px !important; }
+  .throne-cat { display: none; }
+  .throne-text strong { font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .throne-amt { font-size: 1.25rem; }
+  .throne-btn { width: 100%; font-size: 0.85rem; padding: 8px 10px; }
 }
 .throne {
   position: relative; display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 16px;
