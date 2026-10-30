@@ -7,6 +7,7 @@ import { CATEGORIES, categoryBySlug, Listing, MIN_CENTS, SITE } from "@/lib/data
 import { num, timeAgo, usd } from "@/lib/format";
 import { fetchActivity, fetchRanked, fetchStats, fetchToday, recordClick, useData } from "@/lib/api";
 import { HeaderSearch } from "./Search";
+import { useOnlineCount } from "./Online";
 
 export function Owl({ size = 34 }: { size?: number }) {
   return (
@@ -293,6 +294,7 @@ export function BoardLayout({ children, category }: { children: React.ReactNode;
 export function SiteFooter() {
   const { data } = useData("stats", fetchStats);
   const days = Math.max(1, Math.ceil((Date.now() - SITE.launch) / 86400_000));
+  const online = useOnlineCount();
   return (
     <footer className="site-footer">
       <div className="wrap">
@@ -300,6 +302,7 @@ export function SiteFooter() {
           <div><strong>{data ? num(data.listings) : "…"}</strong><span>products listed</span></div>
           <div><strong>{data ? usd(data.total_cents) : "…"}</strong><span>paid to rank</span></div>
           <div><strong suppressHydrationWarning>Day {days}</strong><span>since launch</span></div>
+          <div><strong>{online ? num(online) : "…"}</strong><span><span className="online-dot" /> online now</span></div>
         </div>
         <p className="muted small">
           Softing is a product of <a href="https://kriosity.in" target="_blank" rel="noopener">Kriosity</a>, built by {SITE.owner}.

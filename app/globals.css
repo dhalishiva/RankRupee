@@ -264,7 +264,7 @@ select:focus, input:focus, textarea:focus, .amount-field:focus-within, .stepper-
 
 /* footer */
 .site-footer { border-top: 1px solid var(--line); padding: 30px 0 40px; background: var(--paper-2); }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
 .stats div { display: flex; flex-direction: column; }
 .stats strong { font-family: var(--mono); font-size: clamp(1.1rem, 3vw, 1.6rem); }
 .stats span { font-size: 0.8rem; color: var(--muted); }
@@ -389,3 +389,19 @@ body > main { flex: 1 0 auto; }
 .form .stepper button { min-height: 46px; }
 /* only the wrapper shows focus; the bare input inside it stays flat */
 .stepper-input input:focus, .amount-field input:focus { box-shadow: none; border: 0; outline: none; }
+
+/* live online count */
+.eyebrow-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.eyebrow-row .eyebrow { margin: 0; }
+.online {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--green) 12%, var(--card)); color: var(--green);
+  font-size: 0.75rem; font-weight: 800; border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+}
+.online-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1fae5b; vertical-align: middle;
+  box-shadow: 0 0 0 0 rgba(31, 174, 91, 0.6); animation: pulse 1.8s infinite;
+}
+@keyframes pulse { 70% { box-shadow: 0 0 0 7px rgba(31, 174, 91, 0); } 100% { box-shadow: 0 0 0 0 rgba(31, 174, 91, 0); } }
+@media (max-width: 560px) { .stats { grid-template-columns: repeat(2, 1fr); row-gap: 16px; } }
+@media (prefers-reduced-motion: reduce) { .online-dot { animation: none; } }

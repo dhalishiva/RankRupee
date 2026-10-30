@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Board, BoardLayout, CategoryChips, EmptyBoard, useRanked } from "@/components/ui";
 import { Spotlight } from "@/components/Spotlight";
+import { OnlineBadge } from "@/components/Online";
 import { matches, SearchStatus, useSearchQuery } from "@/components/Search";
 import { usd } from "@/lib/format";
 
@@ -14,7 +15,10 @@ export default function Home() {
   return (
     <>
       <section className="hero wrap">
-        <p className="eyebrow">The public pay-to-rank leaderboard</p>
+        <div className="eyebrow-row">
+          <p className="eyebrow">The public pay-to-rank leaderboard</p>
+          <OnlineBadge />
+        </div>
         <h1>
           Money talks. <em>Here it ranks.</em>
         </h1>
