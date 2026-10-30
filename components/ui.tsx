@@ -286,8 +286,7 @@ export function SiteFooter() {
           <div><strong suppressHydrationWarning>Day {days}</strong><span>since launch</span></div>
         </div>
         <p className="muted small">
-          Softing is a product of <a href="https://kriosity.in" target="_blank" rel="noopener">Kriosity</a>, built by{" "}
-          <a href={`https://x.com/${SITE.x}`} target="_blank" rel="noopener">@{SITE.x}</a>.
+          Softing is a product of <a href="https://kriosity.in" target="_blank" rel="noopener">Kriosity</a>, built by {SITE.owner}.
         </p>
         <p className="muted small footer-links">
           <Link href="/about">About</Link> · <Link href="/rules">Rules</Link> · <Link href="/faq">FAQ</Link> ·{" "}
