@@ -387,3 +387,5 @@ body > main { flex: 1 0 auto; }
 .form .stepper-input { flex-direction: row; align-items: center; gap: 4px; }
 .form .stepper { margin-top: 2px; }
 .form .stepper button { min-height: 46px; }
+/* only the wrapper shows focus; the bare input inside it stays flat */
+.stepper-input input:focus, .amount-field input:focus { box-shadow: none; border: 0; outline: none; }
