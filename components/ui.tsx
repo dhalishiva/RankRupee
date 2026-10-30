@@ -1,21 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { CATEGORIES, categoryBySlug, LAUNCH_DATE, MIN_AMOUNT } from "@/lib/data";
-import { inr, num, timeAgo } from "@/lib/format";
-import { Ranked, useStore } from "@/lib/store";
-import { useRouter } from "next/navigation";
+import { CATEGORIES, categoryBySlug, Listing, MIN_CENTS, SITE } from "@/lib/data";
+import { num, timeAgo, usd } from "@/lib/format";
+import { fetchActivity, fetchRanked, fetchStats, fetchToday, recordClick, useData } from "@/lib/api";
 
-export function Logo({ name, hue, size = 44 }: { name: string; hue: number; size?: number }) {
+export function Owl({ size = 34 }: { size?: number }) {
   return (
-    <span
-      className="logo"
-      style={{ width: size, height: size, fontSize: size * 0.42, background: `hsl(${hue} 70% 88%)`, color: `hsl(${hue} 60% 28%)` }}
-      aria-hidden
-    >
-      {name.trim().charAt(0).toUpperCase()}
+    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden className="owl">
+      <path d="M7 9 L13 15 L20 12 L27 15 L33 9 L33 27 Q33 37 20 37 Q7 37 7 27 Z" fill="var(--ink)" />
+      <circle cx="14" cy="21" r="5.6" fill="var(--paper)" />
+      <circle cx="26" cy="21" r="5.6" fill="var(--paper)" />
+      <circle cx="14.8" cy="21.4" r="2.6" fill="var(--ink)" />
+      <circle cx="26.8" cy="21.4" r="2.6" fill="var(--ink)" />
+      <circle cx="15.6" cy="20.4" r="0.9" fill="var(--paper)" />
+      <circle cx="27.6" cy="20.4" r="0.9" fill="var(--paper)" />
+      <path d="M18 26 L22 26 L20 30 Z" fill="var(--accent)" />
+    </svg>
+  );
+}
+
+export function ListingLogo({ name, domain, size = 44 }: { name: string; domain: string; size?: number }) {
+  const [failed, setFailed] = useState(false);
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return (
+    <span className="logo" style={{ width: size, height: size, fontSize: size * 0.42, background: `hsl(${h} 70% 88%)`, color: `hsl(${h} 60% 28%)` }} aria-hidden>
+      {failed || !domain ? (
+        name.trim().charAt(0).toUpperCase()
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`} alt="" width={size * 0.62} height={size * 0.62} onError={() => setFailed(true)} loading="lazy" />
+      )}
     </span>
   );
 }
@@ -29,40 +47,31 @@ export function SiteHeader() {
     { href: "/rules", label: "Rules" },
   ];
   return (
-    <>
-      <div className="demo-banner">
-        Demo mode · payments are simulated and most listings are samples. Nothing is charged.
-      </div>
-      <header className="site-header">
-        <div className="wrap header-inner">
-          <Link href="/" className="brand">
-            <span className="brand-mark">₹</span>
-            <span>
-              Rank<em>Rupee</em>
-            </span>
-          </Link>
-          <nav className="nav">
-            {nav.map((n) => (
-              <Link key={n.href} href={n.href} className={path === n.href ? "active" : ""}>
-                {n.label}
-              </Link>
-            ))}
-            <Link href="/claim" className="btn btn-sm">
-              Claim a rank
+    <header className="site-header">
+      <div className="wrap header-inner">
+        <Link href="/" className="brand" aria-label="Softing home">
+          <Owl />
+          <span>Softing</span>
+        </Link>
+        <nav className="nav">
+          {nav.map((n) => (
+            <Link key={n.href} href={n.href} className={path === n.href ? "active" : ""}>
+              {n.label}
             </Link>
-          </nav>
-        </div>
-      </header>
-    </>
+          ))}
+          <Link href="/claim" className="btn btn-sm">
+            Claim a rank
+          </Link>
+        </nav>
+      </div>
+    </header>
   );
 }
 
 export function CategoryChips({ active }: { active?: string }) {
   return (
     <div className="chips" role="navigation" aria-label="Categories">
-      <Link href="/" className={`chip ${!active ? "on" : ""}`}>
-        All
-      </Link>
+      <Link href="/" className={`chip ${!active ? "on" : ""}`}>All</Link>
       {CATEGORIES.map((c) => (
         <Link key={c.slug} href={`/category/${c.slug}`} className={`chip ${active === c.slug ? "on" : ""}`} title={c.name}>
           {c.short}
@@ -72,81 +81,72 @@ export function CategoryChips({ active }: { active?: string }) {
   );
 }
 
+export function useRanked() {
+  return useData("ranked", fetchRanked);
+}
+
 export function ClaimBox({ category }: { category?: string }) {
-  const { ranked, ready } = useStore();
+  const { data } = useRanked();
   const router = useRouter();
-  const top = ranked[0]?.amount ?? 0;
-  const suggested = Math.max(MIN_AMOUNT, top + 1);
-  const [amount, setAmount] = useState<number | null>(null);
+  const top = data?.[0]?.total_cents ?? 0;
+  const suggested = Math.max(MIN_CENTS, top + 100);
+  const [dollars, setDollars] = useState<number | null>(null);
   const [cat, setCat] = useState(category ?? "");
-  const value = amount ?? suggested;
-  const step = value >= 10000 ? 1000 : value >= 1000 ? 100 : 10;
+  const value = dollars ?? suggested / 100;
+  const step = value >= 10000 ? 1000 : value >= 1000 ? 100 : value >= 100 ? 10 : 1;
+  const ready = data !== undefined;
 
   return (
     <section className="card claim-box">
       <h2>
-        Claim #1 for <span className="amount-big">{ready ? inr(value) : "…"}</span>
+        Claim #1 for <span className="amount-big">{ready ? usd(Math.round(value * 100)) : "…"}</span>
       </h2>
       <div className="stepper">
-        <button type="button" onClick={() => setAmount(Math.max(MIN_AMOUNT, value - step))} aria-label="Decrease amount">
-          −
-        </button>
+        <button type="button" onClick={() => setDollars(Math.max(1, value - step))} aria-label="Decrease amount">−</button>
         <label className="stepper-input">
-          <span>₹</span>
+          <span>$</span>
           <input
             inputMode="numeric"
             value={ready ? value : ""}
-            onChange={(e) => setAmount(Number(e.target.value.replace(/\D/g, "")) || MIN_AMOUNT)}
-            aria-label="Amount in rupees"
+            onChange={(e) => setDollars(Math.max(1, Number(e.target.value.replace(/\D/g, "")) || 1))}
+            aria-label="Amount in US dollars"
           />
         </label>
-        <button type="button" onClick={() => setAmount(value + step)} aria-label="Increase amount">
-          +
-        </button>
+        <button type="button" onClick={() => setDollars(value + step)} aria-label="Increase amount">+</button>
       </div>
       <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Category">
         <option value="">Choose a category</option>
         {CATEGORIES.map((c) => (
-          <option key={c.slug} value={c.slug}>
-            {c.name}
-          </option>
+          <option key={c.slug} value={c.slug}>{c.name}</option>
         ))}
       </select>
-      <button
-        type="button"
-        className="btn btn-block"
-        onClick={() => router.push(`/claim?amount=${value}${cat ? `&category=${cat}` : ""}`)}
-      >
+      <button type="button" className="btn btn-block" onClick={() => router.push(`/claim?amount=${Math.round(value * 100)}${cat ? `&category=${cat}` : ""}`)}>
         Claim rank
       </button>
-      <p className="muted small">Pay ₹1 more than anyone above you and you jump past them. Minimum {inr(MIN_AMOUNT)}.</p>
+      <p className="muted small">Pay $1 more than the listing above you and you jump past it. Minimum $1. India pays in ₹ via UPI and cards.</p>
     </section>
   );
 }
 
 export function TodayMini() {
-  const { today, ready } = useStore();
+  const { data } = useData("today", fetchToday);
   return (
     <section className="card">
       <div className="card-head">
         <h3>Today&apos;s ranking</h3>
-        <Link href="/today" className="link-sm">
-          See all →
-        </Link>
+        <Link href="/today" className="link-sm">See all →</Link>
       </div>
-      {!ready ? (
+      {!data ? (
         <p className="muted small">Loading…</p>
-      ) : today.length === 0 ? (
-        <p className="muted small">Nobody has claimed today yet. Be first.</p>
+      ) : data.length === 0 ? (
+        <p className="muted small">No one has paid today yet. Today&apos;s #1 costs $1.</p>
       ) : (
         <ol className="mini-list">
-          {today.slice(0, 3).map((p) => (
+          {data.slice(0, 3).map((p) => (
             <li key={p.slug}>
               <span className="mini-rank">#{p.rank}</span>
-              <Link href={`/product/${p.slug}`} className="mini-name">
-                {p.name}
-              </Link>
-              <span className="mini-amt">{inr(p.amount)}</span>
+              <Link href={`/product/${p.slug}`} className="mini-name">{p.name}</Link>
+              <span className="mini-amt">{usd(p.today_cents)}</span>
             </li>
           ))}
         </ol>
@@ -156,122 +156,108 @@ export function TodayMini() {
 }
 
 export function ActivityFeed() {
-  const { activity, ready } = useStore();
   const [n, setN] = useState(5);
+  const { data } = useData("activity", () => fetchActivity(40));
   return (
     <section className="card">
       <h3>Latest activity</h3>
-      {!ready ? (
+      {!data ? (
         <p className="muted small">Loading…</p>
+      ) : data.length === 0 ? (
+        <p className="muted small">Nothing yet. The first payment shows up here.</p>
       ) : (
         <>
           <ul className="activity">
-            {activity.slice(0, n).map((a) => (
-              <li key={a.id}>
+            {data.slice(0, n).map((a, i) => (
+              <li key={`${a.slug}-${a.paid_at}-${i}`}>
                 <Link href={`/product/${a.slug}`}>{a.name}</Link>
-                <span className="muted">
-                  {" "}
-                  at #{a.rankAfter} · {inr(a.amount)} · {timeAgo(a.at)}
-                </span>
+                <span className="muted"> {a.kind === "topup" ? "topped up" : "joined"} · {usd(a.amount_cents)} · {timeAgo(a.paid_at)}</span>
               </li>
             ))}
           </ul>
-          {activity.length > n && (
-            <button className="link-btn" onClick={() => setN(n + 10)}>
-              Show more
-            </button>
-          )}
+          {data.length > n && <button className="link-btn" onClick={() => setN(n + 10)}>Show more</button>}
         </>
       )}
     </section>
   );
 }
 
-export function ProductCard({ p, displayRank }: { p: Ranked; displayRank?: number }) {
-  const { recordClick } = useStore();
+export const outbound = (url: string) => `${url}${url.includes("?") ? "&" : "?"}ref=softing`;
+
+export function ProductCard({ p, displayRank, amountCents }: { p: Pick<Listing, "slug" | "name" | "tagline" | "domain" | "category"> & Partial<Listing>; displayRank: number; amountCents: number }) {
   const cat = categoryBySlug(p.category);
-  const rank = displayRank ?? p.rank;
-  const href = p.url ? `${p.url}${p.url.includes("?") ? "&" : "?"}utm_source=rankrupee` : `/product/${p.slug}`;
-  const external = Boolean(p.url);
   return (
-    <li className={`product ${rank <= 3 ? `podium podium-${rank}` : ""}`}>
-      <a
-        href={href}
-        target={external ? "_blank" : undefined}
-        rel={external ? "noopener" : undefined}
-        className="product-main"
-        onClick={() => recordClick(p.slug)}
-      >
-        <span className="rank">#{rank}</span>
-        <Logo name={p.name} hue={p.hue} />
+    <li className={`product ${displayRank <= 3 ? `podium podium-${displayRank}` : ""}`}>
+      <a href={p.url ? outbound(p.url) : `/product/${p.slug}`} target={p.url ? "_blank" : undefined} rel={p.url ? "noopener" : undefined} className="product-main" onClick={() => p.url && recordClick(p.slug)}>
+        <span className="rank">#{displayRank}</span>
+        <ListingLogo name={p.name} domain={p.domain} />
         <span className="product-text">
-          <span className="product-name">
-            {p.name}
-            {p.sample && <span className="tag">sample</span>}
-            {p.mine && <span className="tag tag-mine">yours</span>}
-          </span>
+          <span className="product-name">{p.name}</span>
           <span className="product-tagline">{p.tagline}</span>
-          <span className="product-desc">{p.description}</span>
+          {p.description && <span className="product-desc">{p.description}</span>}
         </span>
-        <span className="product-amount">{inr(p.amount)}</span>
+        <span className="product-amount">{usd(amountCents)}</span>
       </a>
       <div className="product-meta">
         {cat && <Link href={`/category/${cat.slug}`}>{cat.short}</Link>}
-        <span>·</span>
-        <span>{timeAgo(p.createdAt)}</span>
+        {p.created_at && (<><span>·</span><span>{timeAgo(p.created_at)}</span></>)}
         <span>·</span>
         <span>{p.domain}</span>
-        <span>·</span>
-        <span>{num(p.clicks)} clicks</span>
+        {p.clicks !== undefined && (<><span>·</span><span>{num(p.clicks)} clicks</span></>)}
         <span>·</span>
         <Link href={`/product/${p.slug}`}>details</Link>
-        <Link href={`/claim?amount=${p.amount + 1}`} className="steal">
-          claim this rank for {inr(p.amount + 1)}
-        </Link>
+        {p.total_cents !== undefined && (
+          <Link href={`/claim?amount=${p.total_cents + 100}`} className="steal">claim this rank for {usd(p.total_cents + 100)}</Link>
+        )}
       </div>
     </li>
   );
 }
 
-const PAGE = 20;
+const PAGE = 25;
 
-export function Board({ items, emptyText, rerank }: { items: Ranked[]; emptyText?: string; rerank?: boolean }) {
-  const { ready } = useStore();
+export function Board({ items, loading, error, empty, rerank }: { items: Listing[] | undefined; loading?: boolean; error?: string | null; empty: React.ReactNode; rerank?: boolean }) {
   const [page, setPage] = useState(0);
-  if (!ready) return <BoardSkeleton />;
-  if (items.length === 0) return <p className="empty">{emptyText ?? "Nothing here yet."}</p>;
+  if (error && !items) return <p className="empty">Couldn&apos;t load the board. Refresh to try again.</p>;
+  if (loading || !items) return <BoardSkeleton />;
+  if (items.length === 0) return <div className="empty">{empty}</div>;
   const pages = Math.ceil(items.length / PAGE);
   const slice = items.slice(page * PAGE, page * PAGE + PAGE);
   return (
     <>
       <ol className="board">
         {slice.map((p, i) => (
-          <ProductCard key={p.slug} p={p} displayRank={rerank ? page * PAGE + i + 1 : undefined} />
+          <ProductCard key={p.slug} p={p} displayRank={rerank ? page * PAGE + i + 1 : p.rank} amountCents={p.total_cents} />
         ))}
       </ol>
       {pages > 1 && (
         <div className="pager">
           {Array.from({ length: pages }, (_, i) => (
-            <button key={i} className={i === page ? "on" : ""} onClick={() => { setPage(i); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-              {i + 1}
-            </button>
+            <button key={i} className={i === page ? "on" : ""} onClick={() => { setPage(i); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{i + 1}</button>
           ))}
-          <span className="muted small">
-            {page * PAGE + 1}–{Math.min(items.length, (page + 1) * PAGE)} of {items.length}
-          </span>
+          <span className="muted small">{page * PAGE + 1}–{Math.min(items.length, (page + 1) * PAGE)} of {items.length}</span>
         </div>
       )}
     </>
   );
 }
 
-function BoardSkeleton() {
+export function BoardSkeleton() {
   return (
     <ol className="board">
-      {Array.from({ length: 6 }, (_, i) => (
-        <li key={i} className="product skeleton" />
-      ))}
+      {Array.from({ length: 5 }, (_, i) => <li key={i} className="product skeleton" />)}
     </ol>
+  );
+}
+
+export function EmptyBoard({ text = "The board is empty." }: { text?: string }) {
+  return (
+    <>
+      <Owl size={56} />
+      <p><strong>{text}</strong></p>
+      <p className="muted">Whoever pays first takes #1, for as little as $1.</p>
+      <Link href="/claim" className="btn">Take #1 now</Link>
+    </>
   );
 }
 
@@ -289,35 +275,24 @@ export function BoardLayout({ children, category }: { children: React.ReactNode;
 }
 
 export function SiteFooter() {
-  const { ranked, ready, resetDemo } = useStore();
-  const total = ranked.reduce((s, p) => s + p.amount, 0);
-  const days = ready ? Math.max(1, Math.ceil((Date.now() - LAUNCH_DATE) / 86400_000)) : 0;
+  const { data } = useData("stats", fetchStats);
+  const days = Math.max(1, Math.ceil((Date.now() - SITE.launch) / 86400_000));
   return (
     <footer className="site-footer">
       <div className="wrap">
         <div className="stats">
-          <div>
-            <strong>{ready ? num(ranked.length) : "…"}</strong>
-            <span>products listed</span>
-          </div>
-          <div>
-            <strong>{ready ? inr(total) : "…"}</strong>
-            <span>pledged (demo)</span>
-          </div>
-          <div>
-            <strong>{ready ? `Day ${days}` : "…"}</strong>
-            <span>since launch</span>
-          </div>
+          <div><strong>{data ? num(data.listings) : "…"}</strong><span>products listed</span></div>
+          <div><strong>{data ? usd(data.total_cents) : "…"}</strong><span>paid to rank</span></div>
+          <div><strong suppressHydrationWarning>Day {days}</strong><span>since launch</span></div>
         </div>
         <p className="muted small">
-          Built in Noida by <a href="https://x.com/dhalishiva" target="_blank" rel="noopener">@dhalishiva</a> · a{" "}
-          <a href="https://kriosity.in" target="_blank" rel="noopener">Kriosity</a> project
+          Softing is a product of <a href="https://kriosity.in" target="_blank" rel="noopener">Kriosity</a>, built by{" "}
+          <a href={`https://x.com/${SITE.x}`} target="_blank" rel="noopener">@{SITE.x}</a>.
         </p>
         <p className="muted small footer-links">
-          <Link href="/rules">Rules</Link> · <Link href="/faq">FAQ</Link> · <Link href="/about">About</Link> ·{" "}
-          <button className="link-btn" onClick={() => { if (confirm("Clear your demo claims from this browser?")) resetDemo(); }}>
-            Reset demo data
-          </button>
+          <Link href="/about">About</Link> · <Link href="/rules">Rules</Link> · <Link href="/faq">FAQ</Link> ·{" "}
+          <Link href="/terms">Terms</Link> · <Link href="/privacy">Privacy</Link> · <Link href="/refund-policy">Refunds</Link> ·{" "}
+          <Link href="/delivery-policy">Delivery</Link> · <Link href="/contact">Contact</Link>
         </p>
       </div>
     </footer>

@@ -1,19 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Board, BoardLayout, CategoryChips } from "@/components/ui";
-import { useStore } from "@/lib/store";
+import { BoardLayout, BoardSkeleton, CategoryChips, EmptyBoard, ProductCard } from "@/components/ui";
+import { fetchToday, useData } from "@/lib/api";
 
 export default function Today() {
-  const { today } = useStore();
+  const { data, error } = useData("today", fetchToday);
   return (
     <>
       <section className="hero hero-sm wrap">
-        <p className="eyebrow">Resets at midnight IST</p>
-        <h1>
-          Today&apos;s <em>ranking</em>
-        </h1>
-        <p className="lede">Only listings claimed or topped up since 12:00 AM India time. Cheapest way onto a front page.</p>
+        <p className="eyebrow">Resets at midnight UTC</p>
+        <h1>Today&apos;s <em>ranking</em></h1>
+        <p className="lede">Ranked only by what each listing paid today. The cheapest way onto a front page.</p>
       </section>
       <div className="wrap">
         <CategoryChips />
@@ -23,7 +21,19 @@ export default function Today() {
         </div>
       </div>
       <BoardLayout>
-        <Board items={today} rerank emptyText="No claims yet today. The #1 spot is wide open." />
+        {error && !data ? (
+          <p className="empty">Couldn&apos;t load today&apos;s board. Refresh to try again.</p>
+        ) : !data ? (
+          <BoardSkeleton />
+        ) : data.length === 0 ? (
+          <div className="empty"><EmptyBoard text="No payments yet today." /></div>
+        ) : (
+          <ol className="board">
+            {data.map((p) => (
+              <ProductCard key={p.slug} p={p} displayRank={p.rank} amountCents={p.today_cents} />
+            ))}
+          </ol>
+        )}
       </BoardLayout>
     </>
   );

@@ -1,27 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { Board, BoardLayout, CategoryChips } from "@/components/ui";
-import { useStore } from "@/lib/store";
-import { inr } from "@/lib/format";
+import { Board, BoardLayout, CategoryChips, EmptyBoard, useRanked } from "@/components/ui";
+import { usd } from "@/lib/format";
 
 export default function Home() {
-  const { ranked, ready } = useStore();
-  const top = ranked[0];
+  const { data, error, loading } = useRanked();
+  const top = data?.[0];
   return (
     <>
       <section className="hero wrap">
-        <p className="eyebrow">India&apos;s public pay-to-rank leaderboard</p>
+        <p className="eyebrow">The public pay-to-rank leaderboard</p>
         <h1>
           Money talks. <em>Here it ranks.</em>
         </h1>
         <p className="lede">
-          No ads, no algorithm, no follower count. Whoever pays the most sits at #1 — until someone pays ₹1 more.
-          {ready && top && (
-            <>
-              {" "}Right now <Link href={`/product/${top.slug}`}>{top.name}</Link> holds the throne at {inr(top.amount)}.
-            </>
-          )}
+          No ads, no algorithm, no upvote rings. Whoever pays the most sits at #1 — until someone pays $1 more.
+          {top ? (
+            <> Right now <Link href={`/product/${top.slug}`}>{top.name}</Link> holds #1 at {usd(top.total_cents)}.</>
+          ) : data ? (
+            <> The board is empty, so #1 costs $1.</>
+          ) : null}
         </p>
       </section>
       <div className="wrap">
@@ -32,7 +31,7 @@ export default function Home() {
         </div>
       </div>
       <BoardLayout>
-        <Board items={ranked} />
+        <Board items={data} loading={loading} error={error} empty={<EmptyBoard />} />
       </BoardLayout>
     </>
   );

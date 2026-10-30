@@ -1,7 +1,7 @@
 {
-  "name": "rankrupee",
+  "name": "softing",
   "version": "1.0.0",
-  "description": "RankRupee — India’s pay-to-rank public leaderboard. Pay ₹1 more, take the spot.",
+  "description": "Softing \u2014 the public pay-to-rank product leaderboard. A Kriosity product.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -17,8 +17,9 @@
   "bugs": {
     "url": "https://github.com/dhalishiva/rankrupee/issues"
   },
-  "homepage": "https://github.com/dhalishiva/rankrupee#readme",
+  "homepage": "https://softing.online",
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "next": "^16.4.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

@@ -1,27 +1,31 @@
-# RankRupee
+# Softing
 
-India's public pay-to-rank leaderboard. Pay in ₹ to claim a rank — pay ₹1 more than someone to jump past them.
+The public pay-to-rank product leaderboard — **softing.online**. A product of Kriosity.
 
-**Status:** frontend only, demo mode. Payments are simulated (`components/PaymentModal.tsx`) and listings claimed in the demo are stored in the visitor's browser (`localStorage`). Most seeded listings are marked as samples.
+Pay to list a product; rank = total paid (USD). Pay $1 more than someone to pass them. India pays in INR via Razorpay; everyone else pays in USD via PayPal.
 
-## Stack
-Next.js 16 (App Router) · React 19 · TypeScript · plain CSS. Deployed on Vercel.
+## Architecture
+- **Frontend:** Next.js 16 on Vercel (`app/`, `components/`). Reads public data from Supabase with the publishable key.
+- **Database:** Supabase Postgres (`supabase/migrations/0001_init.sql`). RLS: public can read visible listings and a few safe RPCs; orders are service-role only.
+- **Payments:** Supabase Edge Functions
+  - `api` — `config`, `create-order`, `verify` (Razorpay signature + payment check, PayPal server-side capture). Listings are only written by `fulfill_order()` after verification.
+  - `razorpay-webhook` — backup fulfilment if the buyer closes the tab.
 
-## Run
+## Secrets (Supabase → Edge Functions → Secrets)
+| Name | Purpose |
+|---|---|
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Razorpay API keys (test or live) |
+| `RAZORPAY_WEBHOOK_SECRET` | Secret set on the Razorpay webhook |
+| `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | PayPal REST app credentials |
+| `PAYPAL_ENV` | `sandbox` or `live` |
+| `INR_PER_USD` | Optional, default `88` |
+
+A payment method shows "Coming soon" until its keys are set.
+
+## Moderation
+Hide a listing: in Supabase table editor set `listings.hidden = true`.
+
+## Dev
 ```bash
-npm install
-npm run dev
+npm install && npm run dev
 ```
-
-## Pages
-- `/` all-time board · `/today` resets at midnight IST · `/categories`, `/category/[slug]`
-- `/claim` listing form → demo checkout · `/product/[slug]` detail + top-up
-- `/about`, `/rules`, `/faq`
-
-## Ranking rules
-Rank = total paid, highest first; ties go to whoever paid first. Minimum ₹10. Amounts use Indian digit grouping (₹1,51,001).
-
-## Going live (next steps)
-1. Supabase tables: `listings`, `payments` (rank computed from verified payments only).
-2. Razorpay: server route creates the order, Checkout opens on the client, the server verifies the signature before writing — see `lib/payments.ts`.
-3. Replace `lib/store.tsx` localStorage logic with API calls.
