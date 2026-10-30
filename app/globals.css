@@ -343,3 +343,8 @@ select:focus, input:focus, textarea:focus, .amount-field:focus-within, .stepper-
 .search-count { position: absolute; right: 40px; font-size: 0.75rem; color: var(--muted); font-weight: 700; }
 .search-clear { position: absolute; right: 8px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: var(--paper-2); cursor: pointer; font-size: 1rem; line-height: 1; }
 @media (max-width: 640px) { .search { max-width: none; flex-basis: 100%; } }
+
+/* footer sits at the bottom on short pages */
+body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+body > main { flex: 1 0 auto; }
+.site-footer { margin-top: auto; }
