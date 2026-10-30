@@ -117,7 +117,7 @@ h3 { font-size: 1.05rem; }
 .lede a { color: var(--accent); font-weight: 700; }
 
 /* chips + tabs */
-.chips { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; scrollbar-width: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 10px; }
 .chips::-webkit-scrollbar { display: none; }
 .chip {
   flex: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
