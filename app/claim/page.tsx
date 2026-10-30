@@ -47,10 +47,12 @@ function ClaimForm() {
     const c = Number(params.get("amount"));
     return c >= MIN_CENTS ? String(Math.ceil(c / 100)) : "";
   });
+  const [goForTop, setGoForTop] = useState(params.get("target") === "1"); // came from "Claim #1"
   const [touched, setTouched] = useState(false);
   const [paying, setPaying] = useState(false);
 
-  const fallback = Math.max(MIN_CENTS, (ranked?.[0]?.total_cents ?? 0) + 100);
+  const topMin = Math.max(MIN_CENTS, (ranked?.[0]?.total_cents ?? 0) + 100); // current #1 + $1
+  const fallback = topMin;
   const amountCents = dollars ? Math.round(Number(dollars) * 100) : fallback;
   const rank = ranked ? ranked.filter((p) => p.total_cents >= amountCents).length + 1 : 0;
   const full = normaliseUrl(url);
@@ -65,9 +67,10 @@ function ClaimForm() {
     if (!categoryBySlug(category)) e.category = "Pick a category";
     if (maker && !/^@?[A-Za-z0-9_]{1,15}$/.test(maker.trim())) e.maker = "Letters, numbers and _ only";
     if (!Number.isFinite(amountCents) || amountCents < MIN_CENTS) e.amount = "Minimum is $1";
+    else if (goForTop && amountCents < topMin) e.amount = `To take #1 you need at least ${usd(topMin)} (current #1 + $1)`;
     if (amountCents > 100_000_000) e.amount = "Maximum is $1,000,000";
     return e;
-  }, [host, name, tagline, category, maker, amountCents]);
+  }, [host, name, tagline, category, maker, amountCents, goForTop, topMin]);
 
   const ok = Object.keys(errors).length === 0 && !existing;
   const above = ranked?.find((p) => p.rank === rank - 1);
@@ -127,19 +130,26 @@ function ClaimForm() {
               <span>$</span>
               <input inputMode="decimal" value={dollars || (ranked ? String(fallback / 100) : "")} onChange={(e) => setDollars(e.target.value.replace(/[^\d.]/g, "").slice(0, 10))} />
             </div>
-            {show("amount") && <span className="error">{errors.amount}</span>}
+            {(show("amount") || (goForTop && errors.amount)) && <span className="error">{errors.amount}</span>}
+            {goForTop ? (
+              <span className="muted small">
+                Going for #1.{" "}
+                <button type="button" className="link-btn" onClick={() => setGoForTop(false)}>Claim a lower rank instead</button>
+              </span>
+            ) : null}
           </label>
           <div className="quick">
-            {[1, 5, 25, 100].map((v) => (
-              <button type="button" key={v} className="chip" onClick={() => setDollars(String(v))}>${v}</button>
-            ))}
-            {ranked?.[0] && (
-              <button type="button" className="chip on" onClick={() => setDollars(String((ranked[0].total_cents + 100) / 100))}>
-                Take #1 · {usd(ranked[0].total_cents + 100)}
+            {!goForTop &&
+              [1, 5, 25, 100].map((v) => (
+                <button type="button" key={v} className="chip" onClick={() => setDollars(String(v))}>${v}</button>
+              ))}
+            {ranked && (
+              <button type="button" className="chip on" onClick={() => { setGoForTop(true); setDollars(String(topMin / 100)); }}>
+                Take #1 · {usd(topMin)}
               </button>
             )}
           </div>
-          <button type="submit" className="btn btn-block btn-lg">
+          <button type="submit" className="btn btn-block btn-lg" disabled={goForTop && Boolean(errors.amount)}>
             Continue to pay {usd(amountCents)} · rank #{rank || "…"}
           </button>
           <p className="muted small">India: pay in ₹ with UPI, cards or netbanking. Everyone else: PayPal or card in USD.</p>

@@ -380,3 +380,7 @@ body > main { flex: 1 0 auto; }
   .hsearch-toggle { display: inline-flex; }
   .nav { margin-left: 8px; }
 }
+
+.stepper button:disabled { opacity: 0.4; cursor: not-allowed; }
+.stepper-input.invalid { border-color: var(--error); box-shadow: 0 0 0 3px color-mix(in srgb, var(--error) 18%, transparent); }
+.claim-box .error { margin: -4px 0 0; }

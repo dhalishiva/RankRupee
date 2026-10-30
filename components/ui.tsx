@@ -91,12 +91,16 @@ export function ClaimBox({ category }: { category?: string }) {
   const { data } = useRanked();
   const router = useRouter();
   const top = data?.[0]?.total_cents ?? 0;
-  const suggested = Math.max(MIN_CENTS, top + 100);
-  const [dollars, setDollars] = useState<number | null>(null);
+  const minDollars = Math.max(MIN_CENTS, top + 100) / 100; // #1 needs current #1 + $1
+  const [raw, setRaw] = useState<string | null>(null); // what the user typed; null = follow the minimum
   const [cat, setCat] = useState(category ?? "");
-  const value = dollars ?? suggested / 100;
+  const typed = raw === null ? minDollars : Number(raw);
+  const tooLow = raw !== null && (!Number.isFinite(typed) || typed < minDollars);
+  // if someone outbids while this page is open, never offer less than the new minimum
+  const value = Math.max(minDollars, Number.isFinite(typed) ? typed : minDollars);
   const step = value >= 10000 ? 1000 : value >= 1000 ? 100 : value >= 100 ? 10 : 1;
   const ready = data !== undefined;
+  const set = (n: number) => setRaw(String(Math.max(minDollars, Math.ceil(n))));
 
   return (
     <section className="card claim-box">
@@ -104,28 +108,38 @@ export function ClaimBox({ category }: { category?: string }) {
         Claim #1 for <span className="amount-big">{ready ? usd(Math.round(value * 100)) : "…"}</span>
       </h2>
       <div className="stepper">
-        <button type="button" onClick={() => setDollars(Math.max(1, value - step))} aria-label="Decrease amount">−</button>
-        <label className="stepper-input">
+        <button type="button" onClick={() => set(value - step)} disabled={!ready || value <= minDollars} aria-label="Decrease amount">−</button>
+        <label className={`stepper-input ${tooLow ? "invalid" : ""}`}>
           <span>$</span>
           <input
             inputMode="numeric"
-            value={ready ? value : ""}
-            onChange={(e) => setDollars(Math.max(1, Number(e.target.value.replace(/\D/g, "")) || 1))}
+            value={ready ? (raw ?? String(minDollars)) : ""}
+            onChange={(e) => setRaw(e.target.value.replace(/[^\d]/g, "").slice(0, 9))}
+            onBlur={() => raw !== null && set(Number(raw) || minDollars)}
             aria-label="Amount in US dollars"
+            aria-invalid={tooLow}
           />
         </label>
-        <button type="button" onClick={() => setDollars(value + step)} aria-label="Increase amount">+</button>
+        <button type="button" onClick={() => set(value + step)} disabled={!ready} aria-label="Increase amount">+</button>
       </div>
+      {tooLow && <p className="error small">To take #1 you need at least {usd(minDollars * 100)} (current #1 + $1).</p>}
       <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Category">
         <option value="">Choose a category</option>
         {CATEGORIES.map((c) => (
           <option key={c.slug} value={c.slug}>{c.name}</option>
         ))}
       </select>
-      <button type="button" className="btn btn-block" onClick={() => router.push(`/claim?amount=${Math.round(value * 100)}${cat ? `&category=${cat}` : ""}`)}>
-        Claim rank
+      <button
+        type="button"
+        className="btn btn-block"
+        disabled={!ready || tooLow}
+        onClick={() => router.push(`/claim?amount=${Math.round(value * 100)}&target=1${cat ? `&category=${cat}` : ""}`)}
+      >
+        Claim #1
       </button>
-      <p className="muted small">Pay $1 more than the listing above you and you jump past it. Minimum $1. India pays in ₹ via UPI and cards.</p>
+      <p className="muted small">
+        {top ? <>Current #1 paid {usd(top)}. </> : null}Pay $1 more than the listing above you and you jump past it. India pays in ₹ via UPI and cards.
+      </p>
     </section>
   );
 }
