@@ -278,12 +278,12 @@ export function EmptyBoard({ text = "The board is empty." }: { text?: string }) 
   );
 }
 
-export function BoardLayout({ children, category }: { children: React.ReactNode; category?: string }) {
+export function BoardLayout({ children, category, hideClaim }: { children: React.ReactNode; category?: string; hideClaim?: boolean }) {
   return (
     <div className="wrap layout">
       <div className="main-col">{children}</div>
       <aside className="side-col">
-        <ClaimBox category={category} />
+        {!hideClaim && <ClaimBox category={category} />}
         <TodayMini />
         <ActivityFeed />
       </aside>

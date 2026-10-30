@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CATEGORIES, categoryBySlug, MIN_CENTS } from "@/lib/data";
 import { usd } from "@/lib/format";
-import { invalidate } from "@/lib/api";
+import { fetchToday, invalidate, useData } from "@/lib/api";
 import { useRanked } from "@/components/ui";
 import { Checkout } from "@/components/Checkout";
 
@@ -47,11 +47,18 @@ function ClaimForm() {
     const c = Number(params.get("amount"));
     return c >= MIN_CENTS ? String(Math.ceil(c / 100)) : "";
   });
-  const [goForTop, setGoForTop] = useState(params.get("target") === "1"); // came from "Claim #1"
+  const target = params.get("target");
+  const forToday = target === "today"; // came from "Claim today's #1"
+  const [goForTop, setGoForTop] = useState(target === "1" || forToday);
+  const { data: todayRows } = useData("today", fetchToday);
   const [touched, setTouched] = useState(false);
   const [paying, setPaying] = useState(false);
 
-  const topMin = Math.max(MIN_CENTS, (ranked?.[0]?.total_cents ?? 0) + 100); // current #1 + $1
+  const topMin = forToday
+    ? Math.max(MIN_CENTS, (todayRows?.[0]?.today_cents ?? 0) + 100) // today's top + $1
+    : Math.max(MIN_CENTS, (ranked?.[0]?.total_cents ?? 0) + 100); // current #1 + $1
+  const topLabel = forToday ? "today's #1" : "#1";
+  const topRef = forToday ? "today's top" : "current #1";
   const fallback = topMin;
   const amountCents = dollars ? Math.round(Number(dollars) * 100) : fallback;
   const minCents = goForTop ? topMin : MIN_CENTS;
@@ -71,10 +78,10 @@ function ClaimForm() {
     if (!categoryBySlug(category)) e.category = "Pick a category";
     if (maker && !/^@?[A-Za-z0-9_]{1,15}$/.test(maker.trim())) e.maker = "Letters, numbers and _ only";
     if (!Number.isFinite(amountCents) || amountCents < MIN_CENTS) e.amount = "Minimum is $1";
-    else if (goForTop && amountCents < topMin) e.amount = `To take #1 you need at least ${usd(topMin)} (current #1 + $1)`;
+    else if (goForTop && amountCents < topMin) e.amount = `To take ${topLabel} you need at least ${usd(topMin)} (${topRef} + $1)`;
     if (amountCents > 100_000_000) e.amount = "Maximum is $1,000,000";
     return e;
-  }, [host, name, tagline, category, maker, amountCents, goForTop, topMin]);
+  }, [host, name, tagline, category, maker, amountCents, goForTop, topMin, topLabel, topRef]);
 
   const ok = Object.keys(errors).length === 0 && !existing;
   const above = ranked?.find((p) => p.rank === rank - 1);
@@ -149,14 +156,14 @@ function ClaimForm() {
               <span className="muted small">
                 {goForTop ? (
                   <>
-                    Going for #1 · minimum {usd(topMin)} (current #1 + $1).{" "}
+                    Going for {topLabel} · minimum {usd(topMin)} ({topRef} + $1).{" "}
                     <button type="button" className="link-btn" onClick={() => setGoForTop(false)}>Claim a lower rank instead</button>
                   </>
                 ) : (
                   <>
-                    Any amount from $1. #1 costs {usd(topMin)}.{" "}
+                    Any amount from $1. {forToday ? "Today's #1" : "#1"} costs {usd(topMin)}.{" "}
                     <button type="button" className="link-btn" onClick={() => { setGoForTop(true); setAmount(Math.max(amountDollars, topMin / 100)); }}>
-                      Go for #1
+                      Go for {topLabel}
                     </button>
                   </>
                 )}
