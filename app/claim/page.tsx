@@ -54,6 +54,10 @@ function ClaimForm() {
   const topMin = Math.max(MIN_CENTS, (ranked?.[0]?.total_cents ?? 0) + 100); // current #1 + $1
   const fallback = topMin;
   const amountCents = dollars ? Math.round(Number(dollars) * 100) : fallback;
+  const minCents = goForTop ? topMin : MIN_CENTS;
+  const amountDollars = amountCents / 100;
+  const step = amountDollars >= 10000 ? 1000 : amountDollars >= 1000 ? 100 : amountDollars >= 100 ? 10 : 1;
+  const setAmount = (d: number) => setDollars(String(Math.max(minCents / 100, Math.ceil(d))));
   const rank = ranked ? ranked.filter((p) => p.total_cents >= amountCents).length + 1 : 0;
   const full = normaliseUrl(url);
   const host = hostOf(full);
@@ -124,29 +128,39 @@ function ClaimForm() {
               {show("maker") && <span className="error">{errors.maker}</span>}
             </label>
           </div>
-          <label>
+          <div className="field">
             Amount (USD)
-            <div className="amount-field">
-              <span>$</span>
-              <input inputMode="decimal" value={dollars || (ranked ? String(fallback / 100) : "")} onChange={(e) => setDollars(e.target.value.replace(/[^\d.]/g, "").slice(0, 10))} />
+            <div className="stepper">
+              <button type="button" onClick={() => setAmount(amountDollars - step)} disabled={!ranked || amountCents <= minCents} aria-label="Decrease amount">−</button>
+              <label className={`stepper-input ${errors.amount && (touched || goForTop) ? "invalid" : ""}`}>
+                <span>$</span>
+                <input
+                  inputMode="numeric"
+                  value={dollars || (ranked ? String(fallback / 100) : "")}
+                  onChange={(e) => setDollars(e.target.value.replace(/[^\d]/g, "").slice(0, 9))}
+                  onBlur={() => setAmount(Number(dollars) || fallback / 100)}
+                  aria-label="Amount in US dollars"
+                />
+              </label>
+              <button type="button" onClick={() => setAmount(amountDollars + step)} disabled={!ranked} aria-label="Increase amount">+</button>
             </div>
             {(show("amount") || (goForTop && errors.amount)) && <span className="error">{errors.amount}</span>}
-            {goForTop ? (
-              <span className="muted small">
-                Going for #1.{" "}
-                <button type="button" className="link-btn" onClick={() => setGoForTop(false)}>Claim a lower rank instead</button>
-              </span>
-            ) : null}
-          </label>
-          <div className="quick">
-            {!goForTop &&
-              [1, 5, 25, 100].map((v) => (
-                <button type="button" key={v} className="chip" onClick={() => setDollars(String(v))}>${v}</button>
-              ))}
             {ranked && (
-              <button type="button" className="chip on" onClick={() => { setGoForTop(true); setDollars(String(topMin / 100)); }}>
-                Take #1 · {usd(topMin)}
-              </button>
+              <span className="muted small">
+                {goForTop ? (
+                  <>
+                    Going for #1 · minimum {usd(topMin)} (current #1 + $1).{" "}
+                    <button type="button" className="link-btn" onClick={() => setGoForTop(false)}>Claim a lower rank instead</button>
+                  </>
+                ) : (
+                  <>
+                    Any amount from $1. #1 costs {usd(topMin)}.{" "}
+                    <button type="button" className="link-btn" onClick={() => { setGoForTop(true); setAmount(Math.max(amountDollars, topMin / 100)); }}>
+                      Go for #1
+                    </button>
+                  </>
+                )}
+              </span>
             )}
           </div>
           <button type="submit" className="btn btn-block btn-lg" disabled={goForTop && Boolean(errors.amount)}>
