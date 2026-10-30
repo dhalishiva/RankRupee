@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Board, BoardLayout, CategoryChips, EmptyBoard, useRanked } from "@/components/ui";
+import { Spotlight } from "@/components/Spotlight";
+import { matches, SearchBox } from "@/components/Search";
 import { usd } from "@/lib/format";
 
 export default function Home() {
   const { data, error, loading } = useRanked();
   const top = data?.[0];
+  const [q, setQ] = useState("");
+  const items = data?.filter((p) => matches(p, q));
   return (
     <>
       <section className="hero wrap">
@@ -24,14 +29,24 @@ export default function Home() {
         </p>
       </section>
       <div className="wrap">
+        <Spotlight />
         <CategoryChips />
-        <div className="tabs">
-          <Link href="/" className="on">All-time</Link>
-          <Link href="/today">Today</Link>
+        <div className="toolbar">
+          <div className="tabs">
+            <Link href="/" className="on">All-time</Link>
+            <Link href="/today">Today</Link>
+          </div>
+          <SearchBox value={q} onChange={setQ} count={q ? items?.length : undefined} />
         </div>
       </div>
       <BoardLayout>
-        <Board items={data} loading={loading} error={error} empty={<EmptyBoard />} />
+        <Board
+          key={q}
+          items={items}
+          loading={loading}
+          error={error}
+          empty={q && data?.length ? <p>No listing matches &ldquo;{q}&rdquo;. <Link href="/claim">Be the first →</Link></p> : <EmptyBoard />}
+        />
       </BoardLayout>
     </>
   );

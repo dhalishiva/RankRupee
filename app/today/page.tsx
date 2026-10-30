@@ -1,11 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { Spotlight } from "@/components/Spotlight";
+import { matches, SearchBox } from "@/components/Search";
 import { BoardLayout, BoardSkeleton, CategoryChips, EmptyBoard, ProductCard } from "@/components/ui";
 import { fetchToday, useData } from "@/lib/api";
 
 export default function Today() {
   const { data, error } = useData("today", fetchToday);
+  const [q, setQ] = useState("");
+  const items = data?.filter((p) => matches(p, q));
   return (
     <>
       <section className="hero hero-sm wrap">
@@ -14,10 +19,14 @@ export default function Today() {
         <p className="lede">Ranked only by what each listing paid today. The cheapest way onto a front page.</p>
       </section>
       <div className="wrap">
+        <Spotlight />
         <CategoryChips />
-        <div className="tabs">
-          <Link href="/">All-time</Link>
-          <Link href="/today" className="on">Today</Link>
+        <div className="toolbar">
+          <div className="tabs">
+            <Link href="/">All-time</Link>
+            <Link href="/today" className="on">Today</Link>
+          </div>
+          <SearchBox value={q} onChange={setQ} count={q ? items?.length : undefined} />
         </div>
       </div>
       <BoardLayout>
@@ -27,9 +36,11 @@ export default function Today() {
           <BoardSkeleton />
         ) : data.length === 0 ? (
           <div className="empty"><EmptyBoard text="No payments yet today." /></div>
+        ) : items && items.length === 0 ? (
+          <p className="empty">No listing today matches &ldquo;{q}&rdquo;.</p>
         ) : (
           <ol className="board">
-            {data.map((p) => (
+            {(items ?? []).map((p) => (
               <ProductCard key={p.slug} p={p} displayRank={p.rank} amountCents={p.today_cents} />
             ))}
           </ol>
