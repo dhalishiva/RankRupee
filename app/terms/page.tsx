@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Legal } from "@/components/Legal";
-import { SITE } from "@/lib/data";
+import { RAZORPAY_LIVE, SITE } from "@/lib/data";
 
 export const metadata = { title: "Terms of Service" };
 
@@ -21,11 +21,11 @@ export default function Terms() {
       </p>
       <h2>3. Payments</h2>
       <ul>
-        <li>Buyers in India pay in Indian rupees (INR) through Razorpay. Other buyers pay in US dollars (USD) through PayPal.</li>
-        <li>INR amounts are calculated from the USD amount at the conversion rate shown at checkout. Your rank counts the USD amount.</li>
+        <li>{RAZORPAY_LIVE ? "Buyers in India pay in Indian rupees (INR) through Razorpay. Other buyers pay in US dollars (USD) through PayPal." : "Payments are made in US dollars (USD) through PayPal, using a PayPal balance or a debit/credit card."}</li>
+        {RAZORPAY_LIVE && <li>INR amounts are calculated from the USD amount at the conversion rate shown at checkout. Your rank counts the USD amount.</li>}
         <li>Prices are inclusive of applicable taxes. Payment-provider and currency-conversion fees charged by your bank are your responsibility.</li>
         <li>Payments may appear on your statement as <strong>{SITE.owner}</strong> or <strong>Kriosity</strong>.</li>
-        <li>We never see or store your full card, UPI or bank details; these are handled by Razorpay or PayPal under their own terms.</li>
+        <li>We never see or store your full card or bank details; these are handled by {RAZORPAY_LIVE ? "Razorpay or PayPal" : "PayPal"} under their own terms.</li>
       </ul>
       <h2>4. Your listing</h2>
       <p>

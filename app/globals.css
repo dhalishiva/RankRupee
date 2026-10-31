@@ -441,3 +441,5 @@ body > main { flex: 1 0 auto; }
 .claimbar .center { margin: 0; }
 .board-note { margin: 0 0 10px; }
 @media (max-width: 560px) { .claimbar-row { flex-direction: column; } }
+
+.methods-one { grid-template-columns: 1fr; }

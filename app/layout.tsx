@@ -6,7 +6,7 @@ import { SiteFooter, SiteHeader, WhatsAppButton } from "@/components/ui";
 import { SITE } from "@/lib/data";
 
 const description =
-  "Softing is the public pay-to-rank product leaderboard. No ads, no algorithm, no upvote rings — pay $1 more than the product above you and take its spot. Pay in ₹ via UPI or worldwide via PayPal.";
+  "Softing is the public pay-to-rank product leaderboard. No ads, no algorithm, no upvote rings — pay $1 more than the product above you and take its spot. Pay with PayPal or card.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

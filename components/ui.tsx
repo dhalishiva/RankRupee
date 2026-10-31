@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { CATEGORIES, categoryBySlug, Listing, MIN_CENTS, SITE } from "@/lib/data";
+import { CATEGORIES, categoryBySlug, Listing, MIN_CENTS, PAY_LINE, SITE } from "@/lib/data";
 import { num, timeAgo, usd } from "@/lib/format";
 import { fetchActivity, fetchRanked, fetchStats, fetchToday, recordClick, useData } from "@/lib/api";
 import { HeaderSearch } from "./Search";
@@ -139,7 +139,7 @@ export function ClaimBox({ category }: { category?: string }) {
         Claim #1
       </button>
       <p className="muted small">
-        {top ? <>Current #1 paid {usd(top)}. </> : null}Pay $1 more than the listing above you and you jump past it. India pays in ₹ via UPI and cards.
+        {top ? <>Current #1 paid {usd(top)}. </> : null}Pay $1 more than the listing above you and you jump past it. {PAY_LINE}
       </p>
     </section>
   );

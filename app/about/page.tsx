@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SITE } from "@/lib/data";
+import { RAZORPAY_LIVE, SITE } from "@/lib/data";
 
 export const metadata = { title: "About" };
 
@@ -13,8 +13,10 @@ export default function About() {
         nothing else. No upvote rings, no algorithm, no follower counts.
       </p>
       <p>
-        It&apos;s open to makers everywhere. Ranks are counted in US dollars. Buyers in India pay in rupees through Razorpay
-        (UPI, cards, netbanking); everyone else pays through PayPal or card.
+        It&apos;s open to makers everywhere. Ranks are counted in US dollars.{" "}
+        {RAZORPAY_LIVE
+          ? "Buyers in India pay in rupees through Razorpay (UPI, cards, netbanking); everyone else pays through PayPal or card."
+          : "Payments go through PayPal, by PayPal balance or debit/credit card."}
       </p>
       <h2>How it works</h2>
       <ol>

@@ -2,7 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CATEGORIES, categoryBySlug, MIN_CENTS } from "@/lib/data";
+import { CATEGORIES, categoryBySlug, MIN_CENTS, RAZORPAY_LIVE } from "@/lib/data";
 import { usd } from "@/lib/format";
 import { fetchToday, invalidate, useData } from "@/lib/api";
 import { useRanked } from "@/components/ui";
@@ -173,7 +173,7 @@ function ClaimForm() {
           <button type="submit" className="btn btn-block btn-lg" disabled={goForTop && Boolean(errors.amount)}>
             Continue to pay {usd(amountCents)} · rank #{rank || "…"}
           </button>
-          <p className="muted small">India: pay in ₹ with UPI, cards or netbanking. Everyone else: PayPal or card in USD.</p>
+          <p className="muted small">{RAZORPAY_LIVE ? "India: pay in ₹ with UPI, cards or netbanking. Everyone else: PayPal or card in USD." : "Pay securely with PayPal or a debit/credit card, in USD."}</p>
         </form>
       </div>
 

@@ -227,14 +227,16 @@ export function Checkout({
               <span className="muted small">Private. Used only for receipts and support.</span>
             </label>
 
-            <div className="methods">
-              <button className={`method ${method === "razorpay" ? "on" : ""}`} disabled={!config.razorpay.enabled} onClick={() => setMethod("razorpay")}>
+            <div className={`methods ${config.razorpay.enabled ? "" : "methods-one"}`}>
+              {config.razorpay.enabled && (
+              <button className={`method ${method === "razorpay" ? "on" : ""}`} onClick={() => setMethod("razorpay")}>
                 <strong>India · {inrAmount !== null ? inr(inrAmount) : ""}</strong>
                 <span>{config.razorpay.enabled ? "UPI, cards, netbanking via Razorpay" : "Coming soon"}</span>
               </button>
+              )}
               <button className={`method ${method === "paypal" ? "on" : ""}`} disabled={!config.paypal.enabled} onClick={() => setMethod("paypal")}>
-                <strong>International · {usd(amountCents)}</strong>
-                <span>{config.paypal.enabled ? "PayPal or card, USA/EU & worldwide" : "Coming soon"}</span>
+                <strong>{config.razorpay.enabled ? "International" : "PayPal or card"} · {usd(amountCents)}</strong>
+                <span>{config.paypal.enabled ? (config.razorpay.enabled ? "PayPal or card, USA/EU & worldwide" : "Pay with your PayPal balance or any debit/credit card") : "Coming soon"}</span>
               </button>
             </div>
 
@@ -258,7 +260,7 @@ export function Checkout({
 
         {error && <p className="error">{error}</p>}
         <p className="muted small">
-          Payments are processed by Razorpay or PayPal and may appear on your statement as <strong>Shiva Dhali</strong> or <strong>Kriosity</strong>.
+          Payments are processed by {config?.razorpay.enabled ? "Razorpay or PayPal" : "PayPal"} and may appear on your statement as <strong>Shiva Dhali</strong> or <strong>Kriosity</strong>.
           By paying you agree to the <Link href="/terms">Terms</Link> and <Link href="/refund-policy">Refund policy</Link>.
         </p>
       </div>

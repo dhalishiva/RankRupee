@@ -7,7 +7,7 @@ import { Board, BoardLayout, BoardSkeleton, CategoryChips, EmptyBoard, ProductCa
 import { OnlineBadge } from "./Online";
 import { matches, SearchStatus, useSearchQuery } from "./Search";
 import { fetchToday, useData } from "@/lib/api";
-import { CATEGORIES, MIN_CENTS } from "@/lib/data";
+import { CATEGORIES, MIN_CENTS, PAY_LINE } from "@/lib/data";
 import { usd } from "@/lib/format";
 
 export type Mode = "all" | "today";
@@ -162,7 +162,7 @@ function ClaimBar({ mode, setMode, minCents, ready, holder }: { mode: Mode; setM
       ) : (
         <p className="muted small center">
           {holder ? <>Beats <strong>{holder}</strong>{mode === "all" ? " for the top spot" : " on today's board"}. </> : <>The spot is empty. </>}
-          India pays in ₹ via UPI.
+          {PAY_LINE}
         </p>
       )}
 

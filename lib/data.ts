@@ -12,6 +12,10 @@ export const SITE = {
   launch: Date.UTC(2026, 9, 30),
 };
 
+// Flip to true when Razorpay is switched back on (also set RAZORPAY_ENABLED=true in Supabase secrets).
+export const RAZORPAY_LIVE = false;
+export const PAY_LINE = RAZORPAY_LIVE ? "India pays in ₹ via UPI." : "Pay with PayPal or card.";
+
 export const SUPABASE_URL = "https://whzoandvutrbpjovhave.supabase.co";
 export const SUPABASE_KEY = "sb_publishable_2DURMcsd2lYqkuf-5YUneg_u7s30PNX"; // public, read-only by RLS
 

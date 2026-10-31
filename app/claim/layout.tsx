@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Claim a rank — list your product from $1",
-  description: "Put your product on Softing's public leaderboard. Pay once from $1, top up any time to climb. Pay in ₹ via UPI or worldwide via PayPal.",
+  description: "Put your product on Softing's public leaderboard. Pay once from $1, top up any time to climb. Pay with PayPal or card.",
   alternates: { canonical: "/claim" },
 };
 

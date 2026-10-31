@@ -34,7 +34,8 @@ const rate = () => {
   return Number.isFinite(r) && r > 10 && r < 1000 ? r : 88;
 };
 const inrPaise = (cents: number) => Math.ceil((cents * rate()) / 100) * 100;
-const razorpayOn = () => Boolean(env("RAZORPAY_KEY_ID") && env("RAZORPAY_KEY_SECRET"));
+// Razorpay is switched off unless RAZORPAY_ENABLED=true is set (keys alone are not enough).
+const razorpayOn = () => env("RAZORPAY_ENABLED") === "true" && Boolean(env("RAZORPAY_KEY_ID") && env("RAZORPAY_KEY_SECRET"));
 const paypalOn = () => Boolean(env("PAYPAL_CLIENT_ID") && env("PAYPAL_CLIENT_SECRET"));
 const paypalBase = () => (env("PAYPAL_ENV") === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com");
 
@@ -147,7 +148,7 @@ function config() {
 
 async function createOrder(input: Record<string, unknown>) {
   const provider = input.provider;
-  if (provider === "razorpay" && !razorpayOn()) throw new HttpError(503, "Razorpay is not available yet");
+  if (provider === "razorpay" && !razorpayOn()) throw new HttpError(503, "Indian (₹) payments are paused right now");
   if (provider === "paypal" && !paypalOn()) throw new HttpError(503, "PayPal is not available yet");
   if (provider !== "razorpay" && provider !== "paypal") throw new HttpError(400, "Choose a payment method");
 
